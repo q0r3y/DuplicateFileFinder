@@ -25,7 +25,7 @@ def get_dir_filenames(directory):
     file_md5_dict = {}
     filecheck_counter = 0
     exclude = set(['AppData', 'Windows', 'Program Files', 'Program Files (x86)', 'ProgramData', 'Microsoft'])
-    print('[-] Excluding: Hidden folders, AppData, Windows, Program Files\n')
+    print(' [-] Excluding: Hidden folders, AppData, Windows, Program Files\n')
     for root, dirs, files in os.walk(directory, topdown=True):
         dirs[:] = [d for d in dirs if not d[0] == '.' and d not in exclude]
         files = [f for f in files if not f[0] == '.']
@@ -34,8 +34,8 @@ def get_dir_filenames(directory):
             print(full_path)
             file_md5_dict[full_path] = ''
             filecheck_counter += 1
-    print('\n[+] Retrieved all file names in directory..')
-    print('[+] Scanned '+str(filecheck_counter)+' files.\n')
+    print('\n [+] Retrieved all file names in directory..')
+    print(' [+] Scanned '+str(filecheck_counter)+' files.\n')
     return file_md5_dict
 
 # Recieves a dictionary of filepaths and computes checksums for all those files
@@ -53,7 +53,7 @@ def get_file_checksums(file_dict):
                 file_md5_dict[md5_checksum].append(file_name)
         except Exception as e:
             pass
-    print('\n[+] Calculated '+str(checksum_counter)+' file checksums..\n')
+    print('\n [+] Calculated '+str(checksum_counter)+' file checksums..\n')
     return file_md5_dict
 
 # Checks for duplicates in the input file : md5sum dictionary
@@ -67,7 +67,7 @@ def check_for_duplicates(file_md5_dict):
                 duplicate_files.append(file_name)
                 print(file_name)
             duplicate_files.append(' ') #Adds blank line to end of list for log
-    print('\n[*] Found '+str(duplicate_counter)+' sets of duplicates.')
+    print('\n [*] Found '+str(duplicate_counter)+' sets of duplicates.')
     return duplicate_files
 
 # Saves a log to the users desktop listing the duplicate files
@@ -80,16 +80,16 @@ def save_file(duplicate_list):
                 log_file.write('\n')
                 log_file.write(item)
             log_file.write('\n-----------Duplicate-files-appear-in-groups-----------\n')
-        print('[+] Saved log file: '+desktop+filename+'')
+        print(' [+] Saved log file: '+desktop+filename+'')
     except Exception as e:
         print(e)
 
 def main():
-    directory_start = str(input("\n[+] Enter a starting directory (C:\\User\\..): "))
+    directory_start = str(input("\n[+] Input a starting directory (enter to scan C: drive): ") or "C:")
 
     while not os.path.isdir(directory_start):
-        print('[-] The directory: '+directory_start+' - is invalid.')
-        directory_start = str(input("[+] Enter a starting directory (C:\\User\\..): "))
+        print(' [-] The directory: '+directory_start+' - is invalid.')
+        directory_start = str(input(" [+] Enter a starting directory (C:\\User\\..): "))
 
     if os.path.isdir(directory_start):
         file_md5_dict = get_dir_filenames(directory_start)
@@ -98,7 +98,7 @@ def main():
         duplicates = check_for_duplicates(file_md5_dict)
         save_file(duplicates)
 
-        print("\nPress enter key to close..")
+        print("\n Press enter key to close..")
         input()
 
 main()
