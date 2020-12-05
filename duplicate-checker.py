@@ -1,8 +1,17 @@
+'''
+    Author: q0r3y
+    Date: 12.05.20
+    Description: This python script scans files in the given directory,
+                 and checks for duplicates by checking the md5 of each file.
+                 It was compiled with: pyinstaller --onefile duplicate-checker.py
+'''
+
 import hashlib
 import os
 import time
 import sys
 
+# Gets an md5 checksum from the input filename
 def get_md5_checksum(filename):
     md5 = hashlib.md5()
     with open(filename,'rb') as f:
@@ -10,6 +19,7 @@ def get_md5_checksum(filename):
             md5.update(chunk)
     return md5.hexdigest()
 
+# Returns a dictionary of all the filepaths in the input dir
 def get_dir_filenames(directory):
     file_md5_dict = {}
     filecheck_counter = 0
@@ -27,6 +37,7 @@ def get_dir_filenames(directory):
     print('[+] Scanned '+str(filecheck_counter)+' files.\n')
     return file_md5_dict
 
+# Recieves a dictionary of filepaths and computes checksums for all those files
 def get_file_checksums(file_dict):
     file_md5_dict = {}
     checksum_counter = 0;
@@ -44,6 +55,7 @@ def get_file_checksums(file_dict):
     print('\n[+] Calculated '+str(checksum_counter)+' file checksums..\n')
     return file_md5_dict
 
+# Checks for duplicates in the input file : md5sum dictionary
 def check_for_duplicates(file_md5_dict):
     duplicate_counter = 0
     duplicate_files = []
@@ -57,6 +69,7 @@ def check_for_duplicates(file_md5_dict):
     print('\n[*] Found '+str(duplicate_counter)+' sets of duplicates.')
     return duplicate_files
 
+# Saves a log to the users desktop listing the duplicate files
 def save_file(duplicate_list):
     desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
     filename = '\\duplicate_log.txt'
