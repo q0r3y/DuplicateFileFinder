@@ -1,9 +1,10 @@
 '''
     Author: q0r3y
     Date: 12.05.20
-    Description: This python script scans files in the given directory,
-                 and checks for duplicates by checking the md5 of each file.
-                 It was compiled with: pyinstaller --onefile duplicate-checker.py
+    Description:
+        This python script scans files in the given directory,
+        and checks for duplicates by checking the md5 of each file.
+        It was compiled with: pyinstaller --onefile duplicate-checker.py
 '''
 
 import hashlib
@@ -23,8 +24,8 @@ def get_md5_checksum(filename):
 def get_dir_filenames(directory):
     file_md5_dict = {}
     filecheck_counter = 0
-    exclude = set(['AppData'])
-    print('[-] Excluding: Hidden folders, AppData\n')
+    exclude = set(['AppData', 'Windows', 'Program Files', 'Program Files (x86)', 'ProgramData', 'Microsoft'])
+    print('[-] Excluding: Hidden folders, AppData, Windows, Program Files\n')
     for root, dirs, files in os.walk(directory, topdown=True):
         dirs[:] = [d for d in dirs if not d[0] == '.' and d not in exclude]
         files = [f for f in files if not f[0] == '.']
