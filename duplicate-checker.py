@@ -12,6 +12,8 @@ import os
 import time
 import sys
 
+#os.system("mode con cols=100 lines=20")
+
 # Gets an md5 checksum from the input filename
 def get_md5_checksum(filename):
     md5 = hashlib.md5()
@@ -25,17 +27,20 @@ def get_dir_filenames(directory):
     file_md5_dict = {}
     filecheck_counter = 0
     exclude = set(['AppData', 'Windows', 'Program Files', 'Program Files (x86)', 'ProgramData', 'Microsoft'])
-    print(' [-] Excluding: Hidden folders, AppData, Windows, Program Files\n')
+    print(' [-] Excluding: Hidden folders, AppData, Windows, Program Files, Program Files (x86), ProgramData, Microsoft\n')
     for root, dirs, files in os.walk(directory, topdown=True):
         dirs[:] = [d for d in dirs if not d[0] == '.' and d not in exclude]
         files = [f for f in files if not f[0] == '.']
         for file in files:
-            full_path = os.path.join(root, file)
-            print(full_path)
+            full_path = os.path.join(os.path.abspath(root), file)
+            last_22 = full_path[-22:]
+            first_22 = full_path[0:22]
+            sliced_path = first_22+"....."+last_22 #Keeps the path length consistent for overwrites
+            print(" "+sliced_path, end="\r")
             file_md5_dict[full_path] = ''
             filecheck_counter += 1
-    print('\n [+] Retrieved all file names in directory..')
-    print(' [+] Scanned '+str(filecheck_counter)+' files.\n')
+    print('\n\n [+] Found '+str(filecheck_counter)+' files.\n')
+    time.sleep(3)
     return file_md5_dict
 
 # Recieves a dictionary of filepaths and computes checksums for all those files
@@ -46,14 +51,15 @@ def get_file_checksums(file_dict):
         try:
             md5_checksum = get_md5_checksum(file_name)
             checksum_counter += 1
-            print(md5_checksum)
+            print(' '+md5_checksum, end="\r", flush=True)
             if md5_checksum not in file_md5_dict:
                 file_md5_dict[md5_checksum] = [file_name]
             else:
                 file_md5_dict[md5_checksum].append(file_name)
         except Exception as e:
             pass
-    print('\n [+] Calculated '+str(checksum_counter)+' file checksums..\n')
+    print('\n\n [+] Calculated '+str(checksum_counter)+' MD5 checksums.')
+    time.sleep(3)
     return file_md5_dict
 
 # Checks for duplicates in the input file : md5sum dictionary
@@ -65,7 +71,7 @@ def check_for_duplicates(file_md5_dict):
             duplicate_counter += 1
             for file_name in file_list:
                 duplicate_files.append(file_name)
-                print(file_name)
+                #print(' '+file_name)
             duplicate_files.append(' ') #Adds blank line to end of list for log
     print('\n [*] Found '+str(duplicate_counter)+' sets of duplicates.')
     return duplicate_files
@@ -76,24 +82,24 @@ def save_file(duplicate_list):
     filename = '\\duplicate_log.txt'
     try:
         with open(desktop+filename, 'a') as log_file:
+            log_file.write('-----------Duplicate-files-appear-in-groups-----------\n')
             for item in duplicate_list:
                 log_file.write('\n')
                 log_file.write(item)
             log_file.write('\n-----------Duplicate-files-appear-in-groups-----------\n')
         print(' [+] Saved log file: '+desktop+filename+'')
     except Exception as e:
-        print(e)
+        print(' [-] ERROR:'+e)
 
 def main():
-    directory_start = str(input("\n[+] Input a starting directory (enter to scan C: drive): ") or "C:")
+    directory_start = str(input("\n [+] Input a starting directory (enter to scan C: drive): ") or "C:")
 
     while not os.path.isdir(directory_start):
         print(' [-] The directory: '+directory_start+' - is invalid.')
-        directory_start = str(input(" [+] Enter a starting directory (C:\\User\\..): "))
+        directory_start = str(input(" [+] Enter a starting directory (C:\\User\\..): ") or "C:")
 
     if os.path.isdir(directory_start):
         file_md5_dict = get_dir_filenames(directory_start)
-        time.sleep(3)
         file_md5_dict = get_file_checksums(file_md5_dict)
         duplicates = check_for_duplicates(file_md5_dict)
         save_file(duplicates)
